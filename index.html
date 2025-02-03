@@ -4,68 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spelling Quiz for Kids</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f8ff;
-            flex-direction: column;
+            background-color: #f5f5f5;
+            margin: 0;
         }
         .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to bottom right, #4CAF50, #2E7D32);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             text-align: center;
+            margin-bottom: 30px;
+            width: 80%;
+            max-width: 600px;
+            color: #fff;
+        }
+        .container h1 {
+            font-size: 36px;
             margin-bottom: 20px;
         }
         input, textarea {
-            padding: 10px;
-            margin-top: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 8px;
             width: 100%;
+            box-sizing: border-box;
+            font-size: 16px;
         }
         button {
-            padding: 10px 20px;
-            margin-top: 10px;
+            padding: 12px 24px;
+            margin-top: 12px;
             border: none;
-            background-color: #28a745;
-            color: white;
-            border-radius: 5px;
+            background-color: #FFEB3B;
+            color: #333;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
         }
         button:hover {
-            background-color: #218838;
+            background-color: #FBC02D;
+        }
+        #quiz-container {
+            display: none;
+        }
+        #quiz-area {
+            background-color: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        #quiz-area p {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #answer {
+            font-size: 18px;
+        }
+        #feedback {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+        #scoreboard {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        #scoreboard h2 {
+            font-size: 24px;
+            margin: 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Enter Your Word List</h1>
-        <textarea id="wordList" placeholder="Enter words separated by commas..."></textarea>
-        <button onclick="startQuiz()">Start Quiz</button>
-    </div>
-    <div class="container" id="quiz-container" style="display: none;">
         <h1>Spelling Quiz</h1>
-        <div id="quiz-area">
-            <p id="question">Listen to the word:</p>
-            <button onclick="speakWord()">🔊 Play Word</button>
-            <input type="text" id="answer" placeholder="Type here..." onkeydown="handleKeyPress(event)" spellcheck="false">
-            <button onclick="checkAnswer()">Submit</button>
-            <button onclick="nextWord()">Next Word</button>
-            <p id="feedback"></p>
+        <div id="start-quiz-container">
+            <textarea id="wordList" placeholder="Enter words separated by commas..."></textarea>
+            <button onclick="loadDefaultWords()">Default Word List</button>
+            <button onclick="startQuiz()">Start Quiz</button>
         </div>
-        <div id="scoreboard">
-            <h2>Score: <span id="score">0</span></h2>
-            <h2>Words Attempted: <span id="word-count">0</span>/10</h2>
+        <div class="container" id="quiz-container">
+            <div id="quiz-area">
+                <p id="question">Listen to the word:</p>
+                <button onclick="speakWord()">🔊 Play Word</button>
+                <input type="text" id="answer" placeholder="Type here..." onkeydown="handleKeyPress(event)" spellcheck="false">
+                <div id="feedback-container">
+                    <p id="feedback"></p>
+                </div>
+            </div>
+            <div id="scoreboard">
+                <h2>Score: <span id="score">0</span></h2>
+                <h2>Words Attempted: <span id="word-count">0</span>/10</h2>
+            </div>
+            <div id="quiz-controls">
+                <button onclick="endQuiz()">End Quiz</button>
+                <button onclick="resetQuiz()">Reset Quiz</button>
+            </div>
         </div>
-        <button onclick="endQuiz()">End Quiz</button>
-        <button onclick="resetQuiz()">Reset Quiz</button>
     </div>
     
     <script>
@@ -74,6 +119,11 @@
         let currentWord = "";
         let score = 0;
         let wordCount = 0;
+        const defaultWords = ["accident", "actually", "address", "answer", "appear", "arrive", "believe", "bicycle", "breath", "breathe", "build", "busy", "business", "calendar", "caught", "centre", "century", "certain", "circle", "complete", "consider", "continue", "decide", "describe", "different", "difficult", "disappear", "early", "earth", "eight", "eighth", "enough", "exercise", "experience", "experiment", "extreme", "famous", "favourite", "February", "forward", "fruit", "grammar", "group", "guard", "guide", "heard", "heart", "height", "history", "imagine", "increase", "important", "interest", "island", "knowledge", "learn", "length", "library", "material", "medicine", "mention", "minute", "natural", "naughty", "notice", "occasion", "often", "opposite", "ordinary", "particular", "peculiar", "perhaps", "popular", "position", "possess", "possible", "potatoes", "pressure", "promise", "purpose", "quarter", "question", "recent", "regular", "reign", "remember", "sentence", "separate", "special", "straight", "strange", "strength", "suppose", "surprise", "therefore", "though", "although", "thought", "through", "various", "weight", "woman", "women"];
+
+        function loadDefaultWords() {
+            document.getElementById("wordList").value = defaultWords.join(", ");
+        }
 
         function startQuiz() {
             const inputWords = document.getElementById("wordList").value.trim();
@@ -85,7 +135,7 @@
             usedWords.clear();
             score = 0;
             wordCount = 0;
-            document.querySelector(".container").style.display = "none";
+            document.getElementById("start-quiz-container").style.display = "none";
             document.getElementById("quiz-container").style.display = "block";
             newWord();
         }
@@ -102,6 +152,7 @@
             document.getElementById("answer").value = "";
             document.getElementById("feedback").textContent = "";
             document.getElementById("word-count").textContent = usedWords.size;
+            speakWord();
         }
 
         function speakWord() {
@@ -111,29 +162,31 @@
             speechSynthesis.speak(utterance);
         }
 
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
+                newWord();
+            }
+        }
+
         function checkAnswer() {
             const answer = document.getElementById("answer").value.trim().toLowerCase();
             if (answer === currentWord) {
-                document.getElementById("feedback").textContent = "Correct! The word was: " + currentWord;
+                document.getElementById("feedback").textContent = "Correct!";
                 document.getElementById("feedback").style.color = "green";
                 score++;
                 document.getElementById("score").textContent = score;
                 wordCount++;
-                setTimeout(newWord, 2000);
             } else {
                 document.getElementById("feedback").textContent = "Try again!";
                 document.getElementById("feedback").style.color = "red";
             }
         }
 
-        function nextWord() {
-            newWord();
-        }
-
         function endQuiz() {
-            alert("Quiz Ended! Your final score is " + score + "/10");
+            document.getElementById("start-quiz-container").style.display = "block";
             document.getElementById("quiz-container").style.display = "none";
-            document.querySelector(".container").style.display = "block";
+            alert(`Quiz completed! Your score is ${score} out of 10.`);
         }
 
         function resetQuiz() {
@@ -141,14 +194,9 @@
             score = 0;
             wordCount = 0;
             document.getElementById("score").textContent = score;
-            document.getElementById("word-count").textContent = wordCount;
-            startQuiz();
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === "Enter") {
-                checkAnswer();
-            }
+            document.getElementById("word-count").textContent = "0/10";
+            document.getElementById("start-quiz-container").style.display = "block";
+            document.getElementById("quiz-container").style.display = "none";
         }
     </script>
 </body>
