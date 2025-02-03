@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Quiz for Kids</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            flex-direction: column;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        input, textarea {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button {
+            padding: 10px 20px;
+            margin-top: 10px;
+            border: none;
+            background-color: #28a745;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enter Your Word List</h1>
+        <textarea id="wordList" placeholder="Enter words separated by commas..."></textarea>
+        <button onclick="startQuiz()">Start Quiz</button>
+    </div>
+    <div class="container" id="quiz-container" style="display: none;">
+        <h1>Spelling Quiz</h1>
+        <div id="quiz-area">
+            <p id="question">Listen to the word:</p>
+            <button onclick="speakWord()">🔊 Play Word</button>
+            <input type="text" id="answer" placeholder="Type here...">
+            <button onclick="checkAnswer()">Submit</button>
+            <p id="feedback"></p>
+        </div>
+        <div id="scoreboard">
+            <h2>Score: <span id="score">0</span></h2>
+        </div>
+    </div>
+    
+    <script>
+        let words = [];
+        let currentWord = "";
+        let score = 0;
+
+        function startQuiz() {
+            const inputWords = document.getElementById("wordList").value.trim();
+            words = inputWords ? inputWords.split(",").map(word => word.trim().toLowerCase()) : [];
+            if (words.length === 0) {
+                alert("Please enter at least one word.");
+                return;
+            }
+            document.querySelector(".container").style.display = "none";
+            document.getElementById("quiz-container").style.display = "block";
+            newWord();
+        }
+
+        function newWord() {
+            if (words.length === 0) return;
+            currentWord = words[Math.floor(Math.random() * words.length)];
+            document.getElementById("question").textContent = "Listen to the word:";
+            document.getElementById("answer").value = "";
+            document.getElementById("feedback").textContent = "";
+        }
+
+        function speakWord() {
+            if (!currentWord) return;
+            const utterance = new SpeechSynthesisUtterance(currentWord);
+            utterance.lang = "en-US";
+            speechSynthesis.speak(utterance);
+        }
+
+        function checkAnswer() {
+            const answer = document.getElementById("answer").value.trim().toLowerCase();
+            if (answer === currentWord) {
+                document.getElementById("feedback").textContent = "Correct! The word was: " + currentWord;
+                document.getElementById("feedback").style.color = "green";
+                score++;
+                document.getElementById("score").textContent = score;
+                setTimeout(newWord, 2000);
+            } else {
+                document.getElementById("feedback").textContent = "Try again!";
+                document.getElementById("feedback").style.color = "red";
+            }
+        }
+    </script>
+</body>
+</html>
