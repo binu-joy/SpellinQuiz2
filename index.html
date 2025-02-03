@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,38 +55,53 @@
         <div id="quiz-area">
             <p id="question">Listen to the word:</p>
             <button onclick="speakWord()">🔊 Play Word</button>
-            <input type="text" id="answer" placeholder="Type here...">
+            <input type="text" id="answer" placeholder="Type here..." onkeydown="handleKeyPress(event)" spellcheck="false">
             <button onclick="checkAnswer()">Submit</button>
+            <button onclick="nextWord()">Next Word</button>
             <p id="feedback"></p>
         </div>
         <div id="scoreboard">
             <h2>Score: <span id="score">0</span></h2>
+            <h2>Words Attempted: <span id="word-count">0</span>/10</h2>
         </div>
+        <button onclick="endQuiz()">End Quiz</button>
+        <button onclick="resetQuiz()">Reset Quiz</button>
     </div>
     
     <script>
         let words = [];
+        let usedWords = new Set();
         let currentWord = "";
         let score = 0;
+        let wordCount = 0;
 
         function startQuiz() {
             const inputWords = document.getElementById("wordList").value.trim();
             words = inputWords ? inputWords.split(",").map(word => word.trim().toLowerCase()) : [];
-            if (words.length === 0) {
-                alert("Please enter at least one word.");
+            if (words.length < 10) {
+                alert("Please enter at least 10 words.");
                 return;
             }
+            usedWords.clear();
+            score = 0;
+            wordCount = 0;
             document.querySelector(".container").style.display = "none";
             document.getElementById("quiz-container").style.display = "block";
             newWord();
         }
 
         function newWord() {
-            if (words.length === 0) return;
-            currentWord = words[Math.floor(Math.random() * words.length)];
+            if (wordCount >= 10 || usedWords.size === words.length) {
+                endQuiz();
+                return;
+            }
+            let availableWords = words.filter(word => !usedWords.has(word));
+            currentWord = availableWords[Math.floor(Math.random() * availableWords.length)];
+            usedWords.add(currentWord);
             document.getElementById("question").textContent = "Listen to the word:";
             document.getElementById("answer").value = "";
             document.getElementById("feedback").textContent = "";
+            document.getElementById("word-count").textContent = usedWords.size;
         }
 
         function speakWord() {
@@ -104,10 +118,36 @@
                 document.getElementById("feedback").style.color = "green";
                 score++;
                 document.getElementById("score").textContent = score;
+                wordCount++;
                 setTimeout(newWord, 2000);
             } else {
                 document.getElementById("feedback").textContent = "Try again!";
                 document.getElementById("feedback").style.color = "red";
+            }
+        }
+
+        function nextWord() {
+            newWord();
+        }
+
+        function endQuiz() {
+            alert("Quiz Ended! Your final score is " + score + "/10");
+            document.getElementById("quiz-container").style.display = "none";
+            document.querySelector(".container").style.display = "block";
+        }
+
+        function resetQuiz() {
+            usedWords.clear();
+            score = 0;
+            wordCount = 0;
+            document.getElementById("score").textContent = score;
+            document.getElementById("word-count").textContent = wordCount;
+            startQuiz();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                checkAnswer();
             }
         }
     </script>
