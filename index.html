@@ -83,6 +83,12 @@
             font-size: 24px;
             margin: 0;
         }
+        #voice-settings {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -96,8 +102,19 @@
         <div class="container" id="quiz-container">
             <div id="quiz-area">
                 <p id="question">Listen to the word:</p>
-                <button onclick="speakWord()">🔊 Play Word</button>
-                <input type="text" id="answer" placeholder="Type here..." onkeydown="handleKeyPress(event)" spellcheck="false">
+                <div>
+                    <button onclick="speakWord()">🔊 Play Word</button>
+                </div>
+                <div id="voice-settings">
+                    <label for="speech-rate">Speech Speed:</label>
+                    <input type="range" id="speech-rate" min="0.5" max="1" step="0.1" value="0.7">
+                    <span id="speech-rate-value">0.7</span>
+                
+                    <label for="speech-pitch">Pitch:</label>
+                    <input type="range" id="speech-pitch" min="0.5" max="2" step="0.1" value="1">
+                    <span id="speech-pitch-value">1</span>
+                </div>
+                <input type="text" id="answer" placeholder="Type here..." onkeydown="handleKeyPress(event)" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">
                 <div id="feedback-container">
                     <p id="feedback"></p>
                 </div>
@@ -157,8 +174,18 @@
 
         function speakWord() {
             if (!currentWord) return;
+            
+            // Get custom speech settings
+            const rate = parseFloat(document.getElementById("speech-rate").value);
+            const pitch = parseFloat(document.getElementById("speech-pitch").value);
+            
             const utterance = new SpeechSynthesisUtterance(currentWord);
             utterance.lang = "en-US";
+            utterance.rate = rate; // Slower speech rate
+            utterance.pitch = pitch; // Pitch adjustment
+            
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
             speechSynthesis.speak(utterance);
         }
 
